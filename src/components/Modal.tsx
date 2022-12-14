@@ -1,12 +1,12 @@
-import * as React from "react";
-import * as PropTypes from "prop-types";
-import styled from "styled-components";
-import { colors, transitions } from "../styles";
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import styled from 'styled-components';
+import {colors, transitions} from '../styles';
 
 interface ILightboxStyleProps {
-  show: boolean;
-  offset: number;
-  opacity?: number;
+    show: boolean;
+    offset: number;
+    opacity?: number;
 }
 
 const SLightbox = styled.div<ILightboxStyleProps>`
@@ -16,20 +16,20 @@ const SLightbox = styled.div<ILightboxStyleProps>`
   width: 100vw;
   height: 100vh;
   margin-left: -50vw;
-  top: ${({ offset }) => (offset ? `-${offset}px` : 0)};
+  top: ${({offset}) => (offset ? `-${offset}px` : 0)};
   left: 50%;
   z-index: 2;
   will-change: opacity;
-  background-color: ${({ opacity }) => {
+  background-color: ${({opacity}) => {
     let alpha = 0.4;
-    if (typeof opacity === "number") {
+    if (typeof opacity === 'number') {
       alpha = opacity;
     }
     return `rgba(0, 0, 0, ${alpha})`;
   }};
-  opacity: ${({ show }) => (show ? 1 : 0)};
-  visibility: ${({ show }) => (show ? "visible" : "hidden")};
-  pointer-events: ${({ show }) => (show ? "auto" : "none")};
+  opacity: ${({show}) => (show ? 1 : 0)};
+  visibility: ${({show}) => (show ? 'visible' : 'hidden')};
+  pointer-events: ${({show}) => (show ? 'auto' : 'none')};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,37 +51,42 @@ const SHitbox = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  cursor: pointer;
 `;
 
 interface ICloseButtonStyleProps {
-  size: number;
-  color: string;
-  onClick?: any;
+    size: number;
+    color: string;
+    onClick?: any;
 }
 
 const SCloseButton = styled.div<ICloseButtonStyleProps>`
   transition: ${transitions.short};
   position: absolute;
-  width: ${({ size }) => `${size}px`};
-  height: ${({ size }) => `${size}px`};
-  right: ${({ size }) => `${size / 1.6667}px`};
-  top: ${({ size }) => `${size / 1.6667}px`};
-  opacity: 0.5;
+  width: ${({size}) => `${size}px`};
+  height: ${({size}) => `${size}px`};
+  right: ${({size}) => `${size / 1.6667}px`};
+  top: ${({size}) => `${size / 1.6667}px`};
+  opacity: 1;
   cursor: pointer;
+
   &:hover {
     opacity: 1;
   }
+
   &:before,
   &:after {
     position: absolute;
     content: " ";
-    height: ${({ size }) => `${size}px`};
+    height: ${({size}) => `${size}px`};
     width: 2px;
-    background: ${({ color }) => `rgb(${colors[color]})`};
+    background: ${({color}) => `rgb(${colors[color]})`};
   }
+
   &:before {
     transform: rotate(45deg);
   }
+
   &:after {
     transform: rotate(-45deg);
   }
@@ -108,74 +113,75 @@ const SModalContent = styled.div`
 `;
 
 interface IModalState {
-  offset: number;
+    offset: number;
 }
 
 interface IModalProps {
-  children: React.ReactNode;
-  show: boolean;
-  toggleModal: any;
-  opacity?: number;
+    children: React.ReactNode;
+    show: boolean;
+    toggleModal: any;
+    opacity?: number;
 }
 
 const INITIAL_STATE: IModalState = {
-  offset: 0,
+    offset: 0,
 };
 
 class Modal extends React.Component<IModalProps, IModalState> {
-  public static propTypes = {
-    children: PropTypes.node.isRequired,
-    show: PropTypes.bool.isRequired,
-    toggleModal: PropTypes.func.isRequired,
-    opacity: PropTypes.number,
-  };
+    public static propTypes = {
+        children: PropTypes.node.isRequired,
+        show: PropTypes.bool.isRequired,
+        toggleModal: PropTypes.func.isRequired,
+        opacity: PropTypes.number,
+    };
 
-  public lightbox?: HTMLDivElement | null;
+    public lightbox?: HTMLDivElement | null;
 
-  public state: IModalState = {
-    ...INITIAL_STATE,
-  };
+    public state: IModalState = {
+        ...INITIAL_STATE,
+    };
 
-  public componentDidUpdate() {
-    if (this.lightbox) {
-      const lightboxRect = this.lightbox.getBoundingClientRect();
-      const offset = lightboxRect.top > 0 ? lightboxRect.top : 0;
+    public componentDidUpdate() {
+        if (this.lightbox) {
+            const lightboxRect = this.lightbox.getBoundingClientRect();
+            const offset = lightboxRect.top > 0 ? lightboxRect.top : 0;
 
-      if (offset !== INITIAL_STATE.offset && offset !== this.state.offset) {
-        this.setState({ offset });
-      }
+            if (offset !== INITIAL_STATE.offset && offset !== this.state.offset) {
+                this.setState({offset});
+            }
+        }
     }
-  }
 
-  public toggleModal = async () => {
-    const d = typeof window !== "undefined" ? document : "";
-    const body = d ? d.body || d.getElementsByTagName("body")[0] : "";
-    if (body) {
-      if (this.props.show) {
-        body.style.position = "";
-      } else {
-        body.style.position = "fixed";
-      }
+    public toggleModal = async () => {
+        console.log('run me')
+        const d = typeof window !== 'undefined' ? document : '';
+        const body = d ? d.body || d.getElementsByTagName('body')[0] : '';
+        if (body) {
+            if (this.props.show) {
+                body.style.position = '';
+            } else {
+                body.style.position = 'fixed';
+            }
+        }
+        this.props.toggleModal();
+    };
+
+    public render() {
+        const {offset} = this.state;
+        const {children, show, opacity} = this.props;
+        return (
+            <SLightbox show={show} offset={offset} opacity={opacity} ref={c => (this.lightbox = c)}>
+                <SModalContainer>
+                    <SHitbox onClick={() => this.toggleModal()}/>
+
+                    <SCard>
+                        <SCloseButton size={30} color={'dark'} onClick={() => this.toggleModal()}/>
+                        <SModalContent>{children}</SModalContent>
+                    </SCard>
+                </SModalContainer>
+            </SLightbox>
+        );
     }
-    this.props.toggleModal();
-  };
-
-  public render() {
-    const { offset } = this.state;
-    const { children, show, opacity } = this.props;
-    return (
-      <SLightbox show={show} offset={offset} opacity={opacity} ref={c => (this.lightbox = c)}>
-        <SModalContainer>
-          <SHitbox onClick={this.toggleModal} />
-
-          <SCard>
-            <SCloseButton size={25} color={"dark"} onClick={this.toggleModal} />
-            <SModalContent>{children}</SModalContent>
-          </SCard>
-        </SModalContainer>
-      </SLightbox>
-    );
-  }
 }
 
 export default Modal;
